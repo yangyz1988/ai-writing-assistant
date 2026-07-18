@@ -21,7 +21,7 @@
     "https://api.openai.com/v1/chat/completions",
     "https://api.anthropic.com/v1/messages",
     "https://api.deepseek.com/v1/chat/completions",
-    "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
+    "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
     "https://open.bigmodel.cn/api/paas/v4/chat/completions"
   ],
   "action": {

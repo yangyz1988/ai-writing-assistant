@@ -5,6 +5,8 @@ import { getMessages, setLanguage, getLanguage, subscribeLanguageChange, initLan
 import { Language, LocaleMessages } from '../shared/i18n/types';
 import { PromptTemplateCatalog as PromptTemplateCatalogData, resolveMembershipPlan } from '../shared/entitlements';
 import { PromptTemplateCatalog } from './PromptTemplateCatalog';
+import { buildConnectionTestRequest } from '../shared/connection-test';
+import { PROVIDER_DEFAULTS } from '../shared/provider-config';
 import './styles.css';
 
 type TabType = 'config' | 'modes' | 'customModes' | 'history' | 'promptTemplates';
@@ -152,13 +154,7 @@ const App: React.FC = () => {
     setTestResult(messages.config.testing);
 
     try {
-      const response = await chrome.runtime.sendMessage({
-        type: 'PROCESS_TEXT',
-        payload: {
-          text: '这是一个测试文本',
-          mode: 'polish',
-        },
-      });
+      const response = await chrome.runtime.sendMessage(buildConnectionTestRequest(apiConfig, apiKey));
 
       if (response.success) {
         setTestResult(messages.config.testSuccess);
@@ -178,7 +174,7 @@ const App: React.FC = () => {
     setApiConfig({
       ...apiConfig,
       provider: provider as ApiConfig['provider'],
-      model: domesticProvider?.defaultModel || apiConfig.model,
+      model: domesticProvider?.defaultModel || PROVIDER_DEFAULTS[provider as ApiConfig['provider']].model,
     });
     setTestResult('');
   };

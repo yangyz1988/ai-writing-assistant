@@ -51,7 +51,7 @@ describe('release hardening', () => {
       selectionStart: 6,
       selectionEnd: 11,
       focus: vi.fn(),
-      setSelectionRange(start: number, end: number) {
+      setSelectionRange(this: { selectionStart: number; selectionEnd: number }, start: number, end: number) {
         this.selectionStart = start;
         this.selectionEnd = end;
       },

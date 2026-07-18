@@ -108,6 +108,7 @@ export type Theme = 'light' | 'dark' | 'system';
 export type MessageType = 
 | 'GET_SELECTION'
 | 'PROCESS_TEXT'
+| 'TEST_CONNECTION'
 | 'PROCESS_TEXT_WITH_PROMPT'
 | 'CONFIG_UPDATED'
 | 'SHOW_RESULT'

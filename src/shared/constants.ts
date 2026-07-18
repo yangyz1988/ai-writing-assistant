@@ -1,4 +1,5 @@
 import { ApiConfig, WritingMode, PromptTemplate } from './types';
+import { PROVIDER_DEFAULTS } from './provider-config';
 
 // System prompts for different languages
 const SYSTEM_PROMPTS_ZH: Record<string, string> = {
@@ -82,7 +83,7 @@ export const AVAILABLE_ICONS = [
 
 export const DEFAULT_API_CONFIG: ApiConfig = {
   provider: 'deepseek',
-  model: 'deepseek-chat',
+  model: PROVIDER_DEFAULTS.deepseek.model,
 };
 
 export const DEFAULT_MODE = 'official';
@@ -112,11 +113,11 @@ export const DEFAULT_PROMPT_TEMPLATES: PromptTemplate[] = QUICK_PROMPTS.map((q) 
 }));
 
 export const API_ENDPOINTS = {
-  openai: 'https://api.openai.com/v1/chat/completions',
-  anthropic: 'https://api.anthropic.com/v1/messages',
-  deepseek: 'https://api.deepseek.com/v1/chat/completions',
-  qwen: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
-  glm: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+  openai: PROVIDER_DEFAULTS.openai.endpoint,
+  anthropic: PROVIDER_DEFAULTS.anthropic.endpoint,
+  deepseek: PROVIDER_DEFAULTS.deepseek.endpoint,
+  qwen: PROVIDER_DEFAULTS.qwen.endpoint,
+  glm: PROVIDER_DEFAULTS.glm.endpoint,
 } as const;
 
 // 国内模型推荐配置
@@ -125,22 +126,22 @@ export const DOMESTIC_PROVIDERS = [
     id: 'deepseek',
     name: 'DeepSeek',
     description: '性价比最高，1元/百万tokens',
-    defaultModel: 'deepseek-chat',
-    baseUrl: 'https://api.deepseek.com/v1/chat/completions',
+    defaultModel: PROVIDER_DEFAULTS.deepseek.model,
+    baseUrl: PROVIDER_DEFAULTS.deepseek.endpoint,
   },
   {
     id: 'qwen',
     name: '通义千问',
     description: '阿里云，中文能力强',
-    defaultModel: 'qwen-turbo',
-    baseUrl: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
+    defaultModel: PROVIDER_DEFAULTS.qwen.model,
+    baseUrl: PROVIDER_DEFAULTS.qwen.endpoint,
   },
   {
     id: 'glm',
     name: '智谱GLM',
     description: '智谱AI，免费额度',
-    defaultModel: 'glm-4',
-    baseUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+    defaultModel: PROVIDER_DEFAULTS.glm.model,
+    baseUrl: PROVIDER_DEFAULTS.glm.endpoint,
   },
 ];
 

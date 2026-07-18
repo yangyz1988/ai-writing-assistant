@@ -13,14 +13,11 @@
 
 import { WritingMode, CustomWritingMode, BatchSegment, BatchProcessResult, HistoryRecord, PromptTemplate } from '../shared/types';
 import { WRITING_MODES, QUICK_PROMPTS, CUSTOM_PROMPT_SYSTEM } from '../shared/constants';
+import { mapWithConcurrency } from '../shared/async-pool';
+import { captureSelectionContext, getSelectionRect, replaceSelectionContext, SelectionContext } from '../shared/selection-replacement';
 import styles from './content.css?inline';
 
 // ==================== 类型定义 ====================
-
-interface SelectionContext {
-  text: string;
-  range: Range;
-}
 
 type ToastType = 'loading' | 'success' | 'error' | 'info';
 
@@ -240,27 +237,18 @@ class AIWritingAssistant {
   }
 
   private triggerMenuByShortcut(): void {
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) {
+    const context = captureSelectionContext(document.activeElement);
+    if (!context) {
       this.showToast('请先选择文本', 'error');
       return;
     }
-
-    const text = selection.toString().trim();
-    if (text.length < 3) {
+    if (context.text.length < 3) {
       this.showToast('选择的文本太短', 'error');
       return;
     }
 
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    this.currentSelection = {
-      text,
-      range: range.cloneRange(),
-    };
-
-    this.showMenu(rect);
+    this.currentSelection = context;
+    this.showMenu(getSelectionRect(context));
   }
 
   private handleMouseUp(event: MouseEvent): void {
@@ -273,27 +261,14 @@ class AIWritingAssistant {
       return;
     }
 
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) {
+    const context = captureSelectionContext(event.target);
+    if (!context || context.text.length < 3) {
       this.hideMenu();
       return;
     }
 
-    const text = selection.toString().trim();
-    if (text.length < 3) {
-      this.hideMenu();
-      return;
-    }
-
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    this.currentSelection = {
-      text,
-      range: range.cloneRange(),
-    };
-
-    this.showMenu(rect);
+    this.currentSelection = context;
+    this.showMenu(getSelectionRect(context));
   }
 
   private handleMouseDown(event: MouseEvent): void {
@@ -698,18 +673,8 @@ class AIWritingAssistant {
   }
 
   private replaceSelection(result: string): void {
-    if (!this.currentSelection?.range) return;
-
-    const selection = window.getSelection();
-    if (selection && this.currentSelection.range) {
-      selection.removeAllRanges();
-      selection.addRange(this.currentSelection.range);
-      
-      this.currentSelection.range.deleteContents();
-      this.currentSelection.range.insertNode(document.createTextNode(result));
-      
-      selection.removeAllRanges();
-    }
+    if (!this.currentSelection) return;
+    replaceSelectionContext(this.currentSelection, result);
   }
 
   // ==================== Toast 提示 ====================
@@ -1210,10 +1175,10 @@ class AIWritingAssistant {
 
     this.showBatchProgressOverlay(mode);
 
-    // 并行处理所有片段（Promise.all），实时更新进度
+    // 限制并发，避免一次性请求过多触发供应商限流。
     let completed = 0;
 
-    const tasks = this.batchSegments.map(async (segment) => {
+    this.batchResults = await mapWithConcurrency(this.batchSegments, 3, async (segment): Promise<BatchProcessResult> => {
       if (this.batchCancelled) {
         return {
           segmentId: segment.id,
@@ -1263,8 +1228,6 @@ class AIWritingAssistant {
         };
       }
     });
-
-    this.batchResults = await Promise.all(tasks);
 
     this.isBatchProcessing = false;
 

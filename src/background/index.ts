@@ -3,6 +3,8 @@ import { WRITING_MODES, API_ENDPOINTS, getTokenPrice, getSystemPrompt, CUSTOM_PR
 import { buildTemplateCatalog, MembershipPlan, PromptTemplateCatalog } from '../shared/entitlements';
 import { getLanguage } from '../shared/i18n';
 import { ADMIN_PROMPT_TEMPLATES } from '../shared/templates';
+import { registerListenerOnce } from '../shared/listener-registry';
+import { PROVIDER_DEFAULTS } from '../shared/provider-config';
 
 class BackgroundService {
   private apiConfig: ApiConfig | null = null;
@@ -18,6 +20,7 @@ class BackgroundService {
   private async init(): Promise<void> {
     await this.loadConfig();
     this.setupContextMenu();
+    registerListenerOnce(chrome.contextMenus.onClicked, this.handleContextMenuClick);
     this.setupCommands();
     chrome.runtime.onMessage.addListener(this.handleMessage.bind(this));
     
@@ -104,14 +107,16 @@ class BackgroundService {
         });
       }
     });
-
-    chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-      if (info.menuItemId.toString().startsWith('mode-')) {
-        const modeId = info.menuItemId.toString().replace('mode-', '');
-        await this.processSelection(info.selectionText || '', modeId, tab?.id);
-      }
-    });
   }
+
+  private readonly handleContextMenuClick = async (
+    info: chrome.contextMenus.OnClickData,
+    tab?: chrome.tabs.Tab,
+  ): Promise<void> => {
+    if (!info.menuItemId.toString().startsWith('mode-')) return;
+    const modeId = info.menuItemId.toString().replace('mode-', '');
+    await this.processSelection(info.selectionText || '', modeId, tab?.id);
+  };
 
   private async handleMessage(
     message: ExtensionMessage,
@@ -123,6 +128,22 @@ class BackgroundService {
         const payload = message.payload as { text: string; mode: string };
         const response = await this.processText(payload.text, payload.mode);
         sendResponse(response);
+        return true;
+      }
+
+      case 'TEST_CONNECTION': {
+        const payload = message.payload as { apiConfig: ApiConfig; apiKey: string };
+        const mode = WRITING_MODES.find((item) => item.id === 'polish');
+        if (!mode || !payload.apiKey.trim()) {
+          sendResponse({ success: false, error: 'API key not configured' });
+          return true;
+        }
+        try {
+          const result = await this.callAI('这是一个测试文本', mode, undefined, payload.apiConfig, payload.apiKey, false);
+          sendResponse({ success: Boolean(result), result });
+        } catch (error) {
+          sendResponse({ success: false, error: error instanceof Error ? error.message : 'Connection failed' });
+        }
         return true;
       }
 
@@ -355,21 +376,28 @@ class BackgroundService {
     await chrome.storage.sync.set({ promptTemplates: userTemplates.filter((t) => t.id !== id) });
   }
 
-  private async callAI(text: string, mode: WritingMode, userInstruction?: string): Promise<string> {
-    if (!this.apiConfig || !this.apiKey) {
+  private async callAI(
+    text: string,
+    mode: WritingMode,
+    userInstruction?: string,
+    apiConfig: ApiConfig | null = this.apiConfig,
+    apiKey: string | null = this.apiKey,
+    trackUsage = true,
+  ): Promise<string> {
+    if (!apiConfig || !apiKey) {
       throw new Error('API not configured');
     }
 
     // DeepSeek, Qwen, GLM 都兼容 OpenAI 格式
-    if (this.apiConfig.provider === 'openai' || 
-        this.apiConfig.provider === 'deepseek' ||
-        this.apiConfig.provider === 'qwen' ||
-        this.apiConfig.provider === 'glm') {
-      return this.callOpenAICompatible(text, mode, userInstruction);
-    } else if (this.apiConfig.provider === 'anthropic') {
-      return this.callAnthropic(text, mode, userInstruction);
+    if (apiConfig.provider === 'openai' ||
+        apiConfig.provider === 'deepseek' ||
+        apiConfig.provider === 'qwen' ||
+        apiConfig.provider === 'glm') {
+      return this.callOpenAICompatible(text, mode, apiConfig, apiKey, trackUsage, userInstruction);
+    } else if (apiConfig.provider === 'anthropic') {
+      return this.callAnthropic(text, mode, apiConfig, apiKey, trackUsage, userInstruction);
     } else {
-      throw new Error('Unsupported provider: ' + this.apiConfig.provider);
+      throw new Error('Unsupported provider: ' + apiConfig.provider);
     }
   }
 
@@ -399,16 +427,14 @@ class BackgroundService {
     return (usage.promptTokens * price.input + usage.completionTokens * price.output) / 1000;
   }
 
-  private async saveTokenRecord(usage: TokenUsage, mode: string): Promise<void> {
-    if (!this.apiConfig) return;
-
-    const cost = this.calculateCost(usage, this.apiConfig.provider, this.apiConfig.model);
+  private async saveTokenRecord(usage: TokenUsage, mode: string, apiConfig: ApiConfig): Promise<void> {
+    const cost = this.calculateCost(usage, apiConfig.provider, apiConfig.model);
     
     const record: TokenRecord = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       timestamp: Date.now(),
-      provider: this.apiConfig.provider,
-      model: this.apiConfig.model,
+      provider: apiConfig.provider,
+      model: apiConfig.model,
       mode: mode,
       promptTokens: usage.promptTokens,
       completionTokens: usage.completionTokens,
@@ -501,26 +527,33 @@ class BackgroundService {
     });
   }
 
-  private async callOpenAICompatible(text: string, mode: WritingMode, userInstruction?: string): Promise<string> {
+  private async callOpenAICompatible(
+    text: string,
+    mode: WritingMode,
+    apiConfig: ApiConfig,
+    apiKey: string,
+    trackUsage: boolean,
+    userInstruction?: string,
+  ): Promise<string> {
     // 根据 provider 设置不同的 base URL
     let baseUrl: string;
     let model: string;
     
-    if (this.apiConfig?.provider === 'deepseek') {
+    if (apiConfig.provider === 'deepseek') {
       baseUrl = API_ENDPOINTS.deepseek;
-      model = this.apiConfig?.model || 'deepseek-chat';
-    } else if (this.apiConfig?.provider === 'qwen') {
+      model = apiConfig.model || PROVIDER_DEFAULTS.deepseek.model;
+    } else if (apiConfig.provider === 'qwen') {
       baseUrl = API_ENDPOINTS.qwen;
-      model = this.apiConfig?.model || 'qwen-turbo';
-    } else if (this.apiConfig?.provider === 'glm') {
+      model = apiConfig.model || PROVIDER_DEFAULTS.qwen.model;
+    } else if (apiConfig.provider === 'glm') {
       baseUrl = API_ENDPOINTS.glm;
-      model = this.apiConfig?.model || 'glm-4';
-    } else if (this.apiConfig?.baseUrl) {
-      baseUrl = this.apiConfig.baseUrl;
-      model = this.apiConfig?.model || 'gpt-4';
+      model = apiConfig.model || PROVIDER_DEFAULTS.glm.model;
+    } else if (apiConfig.baseUrl) {
+      baseUrl = apiConfig.baseUrl;
+      model = apiConfig.model || PROVIDER_DEFAULTS.openai.model;
     } else {
       baseUrl = API_ENDPOINTS.openai;
-      model = this.apiConfig?.model || 'gpt-4';
+      model = apiConfig.model || PROVIDER_DEFAULTS.openai.model;
     }
 
     // Get localized system prompt for built-in modes
@@ -539,7 +572,7 @@ class BackgroundService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + this.apiKey,
+        'Authorization': 'Bearer ' + apiKey,
       },
       body: JSON.stringify({
         model: model,
@@ -560,19 +593,26 @@ class BackgroundService {
     
     // 提取 token 使用情况并保存
     const usage = this.extractOpenAIUsage(data);
-    if (usage) {
-      await this.saveTokenRecord(usage, mode.id);
+    if (usage && trackUsage) {
+      await this.saveTokenRecord(usage, mode.id, apiConfig);
     }
     
     // 不同 API 的响应格式略有不同
-    if (this.apiConfig?.provider === 'qwen') {
+    if (apiConfig.provider === 'qwen') {
       return data.output?.text || data.choices?.[0]?.message?.content || '';
     }
     
     return data.choices?.[0]?.message?.content || '';
   }
 
-  private async callAnthropic(text: string, mode: WritingMode, userInstruction?: string): Promise<string> {
+  private async callAnthropic(
+    text: string,
+    mode: WritingMode,
+    apiConfig: ApiConfig,
+    apiKey: string,
+    trackUsage: boolean,
+    userInstruction?: string,
+  ): Promise<string> {
     // Get localized system prompt for built-in modes
     const systemPrompt = mode.isCustom 
       ? mode.systemPrompt 
@@ -589,11 +629,11 @@ class BackgroundService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': this.apiKey || '',
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: this.apiConfig?.model || 'claude-3-opus-20240229',
+        model: apiConfig.model || PROVIDER_DEFAULTS.anthropic.model,
         max_tokens: 4096,
         system: systemPrompt,
         messages: [
@@ -616,7 +656,7 @@ class BackgroundService {
         completionTokens: data.usage.output_tokens || 0,
         totalTokens: (data.usage.input_tokens || 0) + (data.usage.output_tokens || 0),
       };
-      await this.saveTokenRecord(usage, mode.id);
+      if (trackUsage) await this.saveTokenRecord(usage, mode.id, apiConfig);
     }
     
     return data.content?.[0]?.text || '';

@@ -1,0 +1,56 @@
+# 国内大模型 API 配置指南
+
+## 支持的国内大模型
+
+### 1. DeepSeek（推荐）
+- **价格**: 1元/百万tokens（非常便宜）
+- **效果**: 接近 GPT-4 水平
+- **官网**: https://platform.deepseek.com/
+- **API 格式**: 兼容 OpenAI 格式
+
+### 2. 阿里云通义千问（Qwen）
+- **价格**: 免费额度 + 按量计费
+- **效果**: 中文能力强
+- **官网**: https://dashscope.aliyun.com/
+- **API 格式**: 兼容 OpenAI 格式
+
+### 3. 百度文心一言（ERNIE）
+- **价格**: 免费额度 + 按量计费
+- **效果**: 中文能力优秀
+- **官网**: https://cloud.baidu.com/product/wenxinworkshop
+- **API 格式**: 需要特殊处理
+
+### 4. 智谱 AI（GLM）
+- **价格**: 免费额度
+- **效果**: 中文能力强
+- **官网**: https://open.bigmodel.cn/
+- **API 格式**: 兼容 OpenAI 格式
+
+### 5. 讯飞星火
+- **价格**: 免费额度
+- **效果**: 中文能力不错
+- **官网**: https://xinghuo.xfyun.cn/
+- **API 格式**: 需要特殊处理
+
+## 推荐：DeepSeek
+
+**优势**:
+- API 格式完全兼容 OpenAI
+- 价格极低（1元/百万tokens）
+- 中文效果优秀
+- 无需修改太多代码
+
+**获取 API Key**:
+1. 访问 https://platform.deepseek.com/
+2. 注册账号（手机号或邮箱）
+3. 进入 API Keys 页面
+4. 创建新的 API Key
+5. 复制 Key（格式类似: sk-...）
+
+**使用方法**:
+- Provider: 选择 "DeepSeek"
+- API Key: 输入你的 DeepSeek Key
+- Model: 输入 "deepseek-chat"
+- Base URL: 自动设置为 https://api.deepseek.com
+
+需要我帮你修改代码支持 DeepSeek 吗？

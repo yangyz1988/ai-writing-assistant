@@ -1,0 +1,172 @@
+{
+  "app": {
+    "title": "AI 写作助手",
+    "tips": "💡 选中文本 → 浮动菜单 → 选择模式"
+  },
+  "tabs": {
+    "config": "API配置",
+    "modes": "写作模式",
+    "customModes": "自定义",
+    "history": "历史",
+    "promptTemplates": "提示词模板"
+  },
+  "config": {
+    "title": "API 配置",
+    "provider": "服务商",
+    "domesticProviders": "国内服务商（推荐）",
+    "foreignProviders": "国外服务商",
+    "apiKey": "API Key",
+    "apiKeyPlaceholder": "输入你的 API Key",
+    "model": "模型",
+    "modelPlaceholder": "模型名称",
+    "getKey": "获取地址",
+    "recommended": "推荐",
+    "testConnection": "测试连接",
+    "testing": "测试中...",
+    "testSuccess": "✓ 连接成功！",
+    "testFailed": "✗ 错误",
+    "networkError": "✗ 网络错误",
+    "configSaved": "✓ 配置已保存",
+    "saveFailed": "✗ 保存失败",
+    "saveSettings": "保存设置",
+    "saving": "保存中..."
+  },
+  "providers": {
+    "deepseek": {
+      "name": "DeepSeek",
+      "description": "性价比最高，1元/百万tokens"
+    },
+    "qwen": {
+      "name": "通义千问",
+      "description": "阿里云，中文能力强"
+    },
+    "glm": {
+      "name": "智谱GLM",
+      "description": "智谱AI，免费额度"
+    },
+    "openai": {
+      "name": "OpenAI (GPT-4)"
+    },
+    "anthropic": {
+      "name": "Anthropic (Claude)"
+    }
+  },
+  "modes": {
+    "builtIn": "内置写作模式",
+    "custom": "自定义模式",
+    "customBadge": "自定义",
+    "official": {
+      "name": "公文",
+      "description": "正式公文风格"
+    },
+    "copywriting": {
+      "name": "文案",
+      "description": "营销文案风格"
+    },
+    "technical": {
+      "name": "技术文档",
+      "description": "技术文档风格"
+    },
+    "academic": {
+      "name": "学术",
+      "description": "学术论文风格"
+    },
+    "casual": {
+      "name": "轻松",
+      "description": "轻松友好风格"
+    },
+    "polish": {
+      "name": "润色",
+      "description": "优化润色"
+    }
+  },
+  "customModes": {
+    "title": "自定义写作模式",
+    "addMode": "+ 添加模式",
+    "noModes": "暂无自定义模式",
+    "noModesHint": "点击「添加模式」创建你的专属写作风格",
+    "editMode": "编辑模式",
+    "newMode": "新建模式",
+    "name": "名称",
+    "namePlaceholder": "例如：公文润色",
+    "icon": "图标",
+    "description": "描述",
+    "descriptionPlaceholder": "简短描述这个模式的作用",
+    "systemPrompt": "系统提示词",
+    "systemPromptPlaceholder": "定义AI的角色和行为，例如：你是一位专业的公文写作专家，请用正式、专业的风格重写文本...",
+    "promptTip": "提示词越具体，生成效果越好",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "确定要删除这个自定义模式吗？",
+    "cancel": "取消",
+    "save": "保存",
+    "nameRequired": "请填写名称和系统提示词"
+  },
+  "help": {
+    "title": "使用说明",
+    "step1": "选择服务商并输入 API Key",
+    "step2": "点击「测试连接」验证配置",
+    "step3": "保存设置后即可使用",
+    "step4": "在网页上选中文本",
+    "step5": "等待浮动菜单出现",
+    "step6": "点击写作模式按钮",
+    "step7": "查看预览并应用结果",
+    "tip": "提示: 按 Ctrl+Z 可撤销替换",
+    "close": "关闭"
+  },
+  "language": {
+    "label": "语言",
+    "zh": "中文",
+    "en": "English"
+  },
+  "content": {
+    "menuTitle": "AI 写作助手",
+    "quickSelect": "按 {keys} 快速选择",
+    "moreModes": "还有 {count} 个模式未显示",
+    "processing": "正在处理...",
+    "previewTitle": "AI 写作预览",
+    "confirmReplace": "确认后替换",
+    "originalText": "原文",
+    "resultText": "改写结果",
+    "characters": "字符",
+    "diffStats": "📊 变化统计:",
+    "additions": "字增加",
+    "deletions": "字删除",
+    "similarity": "相似度",
+    "cancelKey": "按 Esc 取消",
+    "confirmButton": "确认替换",
+    "replaced": "已替换",
+    "selectTextFirst": "请先选择文本",
+    "textTooShort": "选择的文本太短",
+    "processFailed": "处理失败"
+  },
+  "history": {
+    "title": "处理历史",
+    "empty": "暂无处理历史",
+    "clearAll": "清空历史",
+    "clearConfirm": "确定要清空所有历史记录吗？",
+    "deleteConfirm": "确定要删除这条记录吗？",
+    "customBadge": "自定义",
+    "promptLabel": "提示词",
+    "noPrompt": "（无自定义提示词）"
+  },
+  "promptTemplates": {
+    "title": "提示词模板",
+    "addTemplate": "+ 添加模板",
+    "noTemplates": "暂无自定义模板",
+    "noTemplatesHint": "点击「添加模板」创建常用提示词，输入 / 即可快速调用",
+    "builtin": "内置",
+    "name": "名称",
+    "namePlaceholder": "例如：缩写到一句话",
+    "prompt": "提示词内容",
+    "promptPlaceholder": "例如：请将上述文本缩写为一句话概括核心意思",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "确定要删除这个模板吗？",
+    "cancel": "取消",
+    "save": "保存",
+    "newTemplate": "新建模板",
+    "editTemplate": "编辑模板",
+    "nameRequired": "请填写名称和提示词内容"
+  }
+}

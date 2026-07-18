@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: AI Writing Assistant Membership API
+  version: 1.0.0
+  description: Provider-neutral contract used by the browser extension for entitlement sync and checkout creation.
+servers:
+  - url: https://api.example.com
+    description: Replace with the production HTTPS API origin.
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/membership:
+    get:
+      operationId: getMembership
+      summary: Return the authenticated user's current entitlement.
+      responses:
+        '200':
+          description: Current membership status.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Membership'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /api/v1/checkout-sessions:
+    post:
+      operationId: createCheckoutSession
+      summary: Create a short-lived hosted checkout session.
+      description: The server must derive the customer from the bearer token and must not accept client-supplied prices.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [plan, billing_cycle, return_url]
+              properties:
+                plan:
+                  type: string
+                  const: pro
+                billing_cycle:
+                  type: string
+                  enum: [monthly, annual]
+                return_url:
+                  type: string
+                  description: Allowlisted HTTPS or chrome-extension return URL.
+      responses:
+        '201':
+          description: Checkout session created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CheckoutSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: The account already has an active subscription or another conflicting state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '422':
+          description: Request validation failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: short-lived access token
+  schemas:
+    Membership:
+      type: object
+      additionalProperties: false
+      required: [plan, subscription_status, trial_ends_at, current_period_end]
+      properties:
+        plan:
+          type: string
+          enum: [free, pro]
+        subscription_status:
+          type: string
+          enum: [anonymous, trialing, active, past_due, canceled]
+        trial_ends_at:
+          type: [string, 'null']
+          format: date-time
+        current_period_end:
+          type: [string, 'null']
+          format: date-time
+    CheckoutSession:
+      type: object
+      additionalProperties: false
+      required: [checkout_url, expires_at]
+      properties:
+        checkout_url:
+          type: string
+          format: uri
+          pattern: '^https://'
+        expires_at:
+          type: string
+          format: date-time
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  code:
+                    type: string
+                  message:
+                    type: string
+  responses:
+    Unauthorized:
+      description: Missing, invalid, or expired access token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    RateLimited:
+      description: Rate limit exceeded. Include Retry-After.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    ServiceUnavailable:
+      description: Temporary service failure. Include Retry-After where possible.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'

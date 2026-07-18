@@ -1,0 +1,172 @@
+{
+  "app": {
+    "title": "AI Writing Assistant",
+    "tips": "💡 Select text → Floating menu → Choose mode"
+  },
+  "tabs": {
+    "config": "API Config",
+    "modes": "Modes",
+    "customModes": "Custom",
+    "history": "History",
+    "promptTemplates": "Templates"
+  },
+  "config": {
+    "title": "API Configuration",
+    "provider": "Provider",
+    "domesticProviders": "Domestic Providers (Recommended)",
+    "foreignProviders": "International Providers",
+    "apiKey": "API Key",
+    "apiKeyPlaceholder": "Enter your API Key",
+    "model": "Model",
+    "modelPlaceholder": "Model name",
+    "getKey": "Get key at",
+    "recommended": "Recommended",
+    "testConnection": "Test Connection",
+    "testing": "Testing...",
+    "testSuccess": "✓ Connection successful!",
+    "testFailed": "✗ Error",
+    "networkError": "✗ Network error",
+    "configSaved": "✓ Settings saved",
+    "saveFailed": "✗ Save failed",
+    "saveSettings": "Save Settings",
+    "saving": "Saving..."
+  },
+  "providers": {
+    "deepseek": {
+      "name": "DeepSeek",
+      "description": "Best value, ¥1/million tokens"
+    },
+    "qwen": {
+      "name": "Qwen",
+      "description": "Alibaba Cloud, strong Chinese"
+    },
+    "glm": {
+      "name": "GLM",
+      "description": "Zhipu AI, free tier available"
+    },
+    "openai": {
+      "name": "OpenAI (GPT-4)"
+    },
+    "anthropic": {
+      "name": "Anthropic (Claude)"
+    }
+  },
+  "modes": {
+    "builtIn": "Built-in Writing Modes",
+    "custom": "Custom Modes",
+    "customBadge": "Custom",
+    "official": {
+      "name": "Official",
+      "description": "Formal document style"
+    },
+    "copywriting": {
+      "name": "Copywriting",
+      "description": "Marketing copy style"
+    },
+    "technical": {
+      "name": "Technical",
+      "description": "Technical documentation style"
+    },
+    "academic": {
+      "name": "Academic",
+      "description": "Academic paper style"
+    },
+    "casual": {
+      "name": "Casual",
+      "description": "Friendly and relaxed style"
+    },
+    "polish": {
+      "name": "Polish",
+      "description": "Optimize and refine"
+    }
+  },
+  "customModes": {
+    "title": "Custom Writing Modes",
+    "addMode": "+ Add Mode",
+    "noModes": "No custom modes yet",
+    "noModesHint": "Click \"Add Mode\" to create your own writing style",
+    "editMode": "Edit Mode",
+    "newMode": "New Mode",
+    "name": "Name",
+    "namePlaceholder": "e.g., Formal Polish",
+    "icon": "Icon",
+    "description": "Description",
+    "descriptionPlaceholder": "Brief description of what this mode does",
+    "systemPrompt": "System Prompt",
+    "systemPromptPlaceholder": "Define the AI's role and behavior, e.g., You are a professional document writing expert. Please rewrite the text in a formal, professional style...",
+    "promptTip": "More specific prompts lead to better results",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this custom mode?",
+    "cancel": "Cancel",
+    "save": "Save",
+    "nameRequired": "Please fill in name and system prompt"
+  },
+  "help": {
+    "title": "How to Use",
+    "step1": "Select a provider and enter your API Key",
+    "step2": "Click \"Test Connection\" to verify",
+    "step3": "Save settings to start using",
+    "step4": "Select text on any webpage",
+    "step5": "Wait for the floating menu to appear",
+    "step6": "Click a writing mode button",
+    "step7": "Preview and apply the result",
+    "tip": "Tip: Press Ctrl+Z to undo replacement",
+    "close": "Close"
+  },
+  "language": {
+    "label": "Language",
+    "zh": "中文",
+    "en": "English"
+  },
+  "content": {
+    "menuTitle": "AI Writing Assistant",
+    "quickSelect": "Press {keys} for quick select",
+    "moreModes": "{count} more modes not shown",
+    "processing": "Processing...",
+    "previewTitle": "AI Writing Preview",
+    "confirmReplace": "Confirm to replace",
+    "originalText": "Original",
+    "resultText": "Rewritten",
+    "characters": "characters",
+    "diffStats": "📊 Changes:",
+    "additions": "chars added",
+    "deletions": "chars deleted",
+    "similarity": "similarity",
+    "cancelKey": "Press Esc to cancel",
+    "confirmButton": "Confirm Replace",
+    "replaced": "Replaced",
+    "selectTextFirst": "Please select text first",
+    "textTooShort": "Selected text is too short",
+    "processFailed": "Processing failed"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No history yet",
+    "clearAll": "Clear history",
+    "clearConfirm": "Clear all history records?",
+    "deleteConfirm": "Delete this record?",
+    "customBadge": "Custom",
+    "promptLabel": "Prompt",
+    "noPrompt": "(no custom prompt)"
+  },
+  "promptTemplates": {
+    "title": "Prompt Templates",
+    "addTemplate": "+ Add Template",
+    "noTemplates": "No custom templates yet",
+    "noTemplatesHint": "Click \"Add Template\" to create frequently used prompts; type / to quick-insert",
+    "builtin": "Built-in",
+    "name": "Name",
+    "namePlaceholder": "e.g., Summarize to one sentence",
+    "prompt": "Prompt content",
+    "promptPlaceholder": "e.g., Summarize the text above into one sentence capturing the core idea",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this template?",
+    "cancel": "Cancel",
+    "save": "Save",
+    "newTemplate": "New Template",
+    "editTemplate": "Edit Template",
+    "nameRequired": "Please fill in name and prompt content"
+  }
+}

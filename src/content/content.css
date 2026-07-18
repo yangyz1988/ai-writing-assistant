@@ -1,0 +1,1453 @@
+/* ===================================================================
+   AI Writing Assistant — 完全自包含的 Shadow DOM 样式表
+   使用 CSS 自定义属性 + :host([data-theme='dark']) 实现暗色模式
+   所有组件不再需要 JS 设置任何 style 属性值
+   =================================================================== */
+
+/* ==================== CSS 变量（亮色默认） ==================== */
+:host {
+  /* 背景色 */
+  --ai-bg-primary: #ffffff;
+  --ai-bg-secondary: #f8f9fa;
+  --ai-bg-tertiary: #fafafa;
+  --ai-bg-accent-blue: #f0f7ff;
+  --ai-bg-accent-dark-blue: #1e2a3a;
+  --ai-bg-hover: #f5f5f5;
+  --ai-bg-card: #fafafa;
+  --ai-bg-card-alt: #f0f0f0;
+  --ai-bg-error-light: #fff0f0;
+  --ai-bg-error-card: #fff1f0;
+  --ai-bg-error-header: #3a2020;
+  --ai-bg-progress-track: #f0f0f0;
+  --ai-bg-slash-dropdown: #ffffff;
+  --ai-bg-selected-text: #f5f5f5;
+
+  /* 边框色 */
+  --ai-border-primary: transparent;
+  --ai-border-secondary: #e0e0e0;
+  --ai-border-tertiary: #e8e8e8;
+  --ai-border-input: #d9d9d9;
+  --ai-border-hover: #404040;
+  --ai-border-error: #ffccc7;
+  --ai-border-error-strong: #5a3030;
+  --ai-border-divider: #e8e8e8;
+  --ai-border-dashed: #ddd;
+  --ai-border-slash-dropdown: #d9d9d9;
+  --ai-border-slash-item: #f0f0f0;
+
+  /* 文字色 */
+  --ai-text-primary: #333333;
+  --ai-text-secondary: #666666;
+  --ai-text-tertiary: #999999;
+  --ai-text-muted: #777777;
+  --ai-text-on-accent: #e0e0e0;
+  --ai-text-on-dark: #aaaaaa;
+  --ai-text-on-purple: rgba(255, 255, 255, 0.85);
+  --ai-text-custom-badge: #4a90d9;
+  --ai-text-shortcut: #999999;
+
+  /* 强调色 / 品牌色 */
+  --ai-accent-gradient-start: #667eea;
+  --ai-accent-gradient-end: #764ba2;
+  --ai-accent-blue: #1890ff;
+  --ai-accent-blue-dark: #6ba3e0;
+  --ai-accent-success: #52c41a;
+  --ai-accent-error: #ff4d4f;
+  --ai-accent-red-border: #ff4d4f;
+
+  /* Toast 专用 */
+  --ai-toast-bg: #ffffff;
+  --ai-toast-border: #d9d9d9;
+  --ai-toast-text: #333333;
+
+  /* Loading Toast */
+  --ai-toast-loading-bg: #f0f7ff;
+  --ai-toast-loading-border: #4a90d9;
+
+  /* Success Toast */
+  --ai-toast-success-bg: #f0fff0;
+  --ai-toast-success-icon: #52c41a;
+
+  /* Error Toast */
+  --ai-toast-error-bg: #fff0f0;
+  --ai-toast-error-icon: #ff4d4f;
+
+  /* Info Toast */
+  --ai-toast-info-bg: #f0f0ff;
+  --ai-toast-info-icon: #1890ff;
+
+  /* 渐变 */
+  --ai-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --ai-gradient-header: var(--ai-gradient-primary);
+  --ai-gradient-button: var(--ai-gradient-primary);
+  --ai-gradient-progress: var(--ai-gradient-primary);
+  --ai-gradient-batch: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* 阴影 */
+  --ai-shadow-menu: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --ai-shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --ai-shadow-toast: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --ai-shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --ai-shadow-button: 0 4px 12px rgba(102, 126, 234, 0.4);
+
+  /* 按钮渐变（亮色） */
+  --ai-btn-gradient-start: #667eea;
+  --ai-btn-gradient-end: #764ba2;
+
+  /* Header 渐变（亮色） */
+  --ai-header-gradient-start: #667eea;
+  --ai-header-gradient-end: #764ba2;
+
+  /* 进度条渐变（亮色） */
+  --ai-progress-gradient-start: #667eea;
+  --ai-progress-gradient-end: #764ba2;
+}
+
+/* ==================== 暗色模式 ==================== */
+:host([data-theme='dark']) {
+  /* 背景色 */
+  --ai-bg-primary: #1a1a1a;
+  --ai-bg-secondary: #2d2d2d;
+  --ai-bg-tertiary: #2d2d2d;
+  --ai-bg-accent-blue: #1e2a3a;
+  --ai-bg-accent-dark-blue: #1e2a3a;
+  --ai-bg-hover: #3d3d3d;
+  --ai-bg-card: #2d2d2d;
+  --ai-bg-card-alt: #333333;
+  --ai-bg-error-light: #2e1a1a;
+  --ai-bg-error-card: #2d2d2d;
+  --ai-bg-error-header: #3a2020;
+  --ai-bg-progress-track: #333333;
+  --ai-bg-slash-dropdown: #222222;
+  --ai-bg-selected-text: #333333;
+
+  /* 边框色 */
+  --ai-border-primary: #333333;
+  --ai-border-secondary: #404040;
+  --ai-border-tertiary: #404040;
+  --ai-border-input: #404040;
+  --ai-border-hover: #404040;
+  --ai-border-error: #5a3030;
+  --ai-border-error-strong: #5a3030;
+  --ai-border-divider: #404040;
+  --ai-border-dashed: #404040;
+  --ai-border-slash-dropdown: #404040;
+  --ai-border-slash-item: #333333;
+
+  /* 文字色 */
+  --ai-text-primary: #e0e0e0;
+  --ai-text-secondary: #aaaaaa;
+  --ai-text-tertiary: #999999;
+  --ai-text-muted: #777777;
+  --ai-text-on-accent: #e0e0e0;
+  --ai-text-on-dark: #aaaaaa;
+  --ai-text-on-purple: rgba(255, 255, 255, 0.85);
+  --ai-text-custom-badge: #6ba3e0;
+  --ai-text-shortcut: #666666;
+
+  /* Toast 专用 */
+  --ai-toast-bg: #ffffff;
+  --ai-toast-border: #d9d9d9;
+  --ai-toast-text: #333333;
+
+  /* Loading Toast */
+  --ai-toast-loading-bg: #1e2a3a;
+  --ai-toast-loading-border: #6ba3e0;
+
+  /* Success Toast */
+  --ai-toast-success-bg: #1a2e1a;
+  --ai-toast-success-icon: #52c41a;
+
+  /* Error Toast */
+  --ai-toast-error-bg: #2e1a1a;
+  --ai-toast-error-icon: #ff4d4f;
+
+  /* Info Toast */
+  --ai-toast-info-bg: #1e2e3a;
+  --ai-toast-info-icon: #1890ff;
+
+  /* Header 渐变（暗色） */
+  --ai-header-gradient-start: #4a5cb8;
+  --ai-header-gradient-end: #5a3d7a;
+
+  /* 按钮渐变（暗色） */
+  --ai-btn-gradient-start: #4a5cb8;
+  --ai-btn-gradient-end: #5a3d7a;
+
+  /* 进度条渐变（暗色） */
+  --ai-progress-gradient-start: #4a5cb8;
+  --ai-progress-gradient-end: #5a3d7a;
+}
+
+/* ==================== 通用工具类 ==================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ==================== 浮动菜单 ==================== */
+
+.ai-writing-menu {
+  position: absolute;
+  z-index: 999999;
+  background: var(--ai-bg-primary);
+  border-radius: 12px;
+  box-shadow: var(--ai-shadow-menu);
+  padding: 16px;
+  min-width: 200px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  border: 1px solid var(--ai-border-primary);
+}
+
+.ai-writing-menu.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 菜单标题 */
+.ai-writing-menu > div:first-child {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--ai-text-primary);
+}
+
+.ai-writing-menu > div:first-child > span {
+  font-size: 11px;
+  color: var(--ai-text-tertiary);
+  margin-left: 8px;
+}
+
+/* 模式按钮容器 */
+.ai-writing-menu > div:nth-child(2) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* 模式按钮 */
+.ai-writing-menu button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border: 1px solid var(--ai-border-secondary);
+  border-radius: 8px;
+  background: var(--ai-bg-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-writing-menu button:hover {
+  background: var(--ai-bg-hover);
+  transform: translateY(-1px);
+}
+
+.ai-writing-menu button:active {
+  transform: translateY(0);
+}
+
+/* 自定义模式标记 */
+.ai-writing-menu button[style*="--ai-is-custom"] {
+  background: var(--ai-bg-accent-blue);
+}
+
+.ai-writing-menu button .mode-icon {
+  font-size: 18px;
+}
+
+.ai-writing-menu button .mode-name {
+  font-size: 11px;
+  color: var(--ai-text-secondary);
+}
+
+.ai-writing-menu button .custom-badge {
+  font-size: 8px;
+  color: var(--ai-text-custom-badge);
+}
+
+.ai-writing-menu button .mode-key {
+  font-size: 9px;
+  color: var(--ai-text-tertiary);
+}
+
+/* 批量处理提示 */
+.ai-writing-menu .batch-section {
+  margin-top: 12px;
+}
+
+.ai-writing-menu .batch-hint {
+  background: var(--ai-gradient-batch);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-writing-menu .batch-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--ai-gradient-batch);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-writing-menu .batch-button:hover {
+  opacity: 0.9;
+}
+
+/* 自定义提示词按钮 */
+.ai-writing-menu .custom-prompt-section {
+  margin-top: 12px;
+}
+
+.ai-writing-menu .custom-prompt-button {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 8px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-writing-menu .custom-prompt-button:hover {
+  background: var(--ai-bg-hover);
+}
+
+/* 超过 9 个模式的提示 */
+.ai-writing-menu .more-hint {
+  font-size: 11px;
+  color: var(--ai-text-tertiary);
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* ==================== 预览窗口 ==================== */
+
+/* 遮罩层 */
+.ai-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ai-preview-overlay.show {
+  opacity: 1;
+}
+
+/* 模态框主体 */
+.ai-preview-modal {
+  background: var(--ai-bg-primary);
+  border-radius: 16px;
+  box-shadow: var(--ai-shadow-modal);
+  max-width: 900px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+  border: 1px solid var(--ai-border-primary);
+}
+
+.ai-preview-modal.show {
+  transform: scale(1) translateY(0);
+}
+
+/* 预览窗口头部 */
+.ai-preview-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ai-border-divider);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(
+    135deg,
+    var(--ai-header-gradient-start) 0%,
+    var(--ai-header-gradient-end) 100%
+  );
+  color: #fff;
+}
+
+.ai-preview-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-preview-header .header-icon {
+  font-size: 24px;
+}
+
+.ai-preview-header .header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ai-preview-header .header-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.ai-preview-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.ai-preview-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 预览内容区 */
+.ai-preview-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 文字面板 */
+.ai-preview-panel {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 350px;
+}
+
+.ai-preview-panel.original-panel {
+  background: var(--ai-bg-tertiary);
+}
+
+.ai-preview-panel.result-panel {
+  background: var(--ai-bg-accent-blue);
+}
+
+.ai-preview-panel .panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ai-accent-blue);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ai-preview-panel .panel-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--ai-text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.ai-preview-panel .panel-word-count {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--ai-border-dashed);
+  font-size: 12px;
+  color: var(--ai-text-muted);
+}
+
+/* 统计信息栏 */
+.ai-preview-stats {
+  padding: 12px 24px;
+  background: var(--ai-bg-secondary);
+  border-top: 1px solid var(--ai-border-divider);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: var(--ai-text-secondary);
+}
+
+.ai-preview-stats .stats-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.ai-preview-stats .stat-add {
+  color: var(--ai-accent-success);
+}
+
+.ai-preview-stats .stat-del {
+  color: var(--ai-accent-error);
+}
+
+.ai-preview-stats .stat-sim {
+  color: var(--ai-accent-blue);
+}
+
+/* 预览窗口底部操作栏 */
+.ai-preview-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--ai-border-divider);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--ai-bg-primary);
+}
+
+.ai-preview-footer .esc-hint {
+  font-size: 12px;
+  color: var(--ai-text-muted);
+}
+
+.ai-preview-footer kbd {
+  background: var(--ai-bg-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--ai-border-input);
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.ai-preview-footer .footer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.ai-preview-cancel {
+  padding: 10px 24px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 8px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-preview-cancel:hover {
+  background: var(--ai-bg-hover);
+}
+
+.ai-preview-confirm {
+  padding: 10px 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--ai-gradient-button);
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--ai-shadow-button);
+  transition: opacity 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-preview-confirm:hover {
+  opacity: 0.9;
+}
+
+/* ==================== Toast 提示（扩展已有基础样式） ==================== */
+
+.ai-writing-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--ai-toast-bg);
+  border: 1px solid var(--ai-toast-border);
+  border-radius: 8px;
+  box-shadow: var(--ai-shadow-toast);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  color: var(--ai-toast-text);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.ai-writing-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.toast-message {
+  color: var(--ai-toast-text);
+}
+
+/* Loading Toast */
+.toast-loading {
+  background: var(--ai-toast-loading-bg);
+  border: 1px solid var(--ai-toast-loading-border);
+}
+
+.toast-loading .toast-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e0e0e0;
+  border-top-color: var(--ai-toast-loading-border);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Success Toast */
+.toast-success {
+  background: var(--ai-toast-success-bg);
+  border: 1px solid var(--ai-accent-success);
+}
+
+.toast-success .toast-icon {
+  color: var(--ai-accent-success);
+  font-size: 16px;
+}
+
+/* Error Toast */
+.toast-error {
+  background: var(--ai-toast-error-bg);
+  border: 1px solid var(--ai-accent-error);
+}
+
+.toast-error .toast-icon {
+  color: var(--ai-accent-error);
+  font-size: 16px;
+}
+
+/* Info Toast */
+.toast-info {
+  background: var(--ai-toast-info-bg);
+  border: 1px solid var(--ai-accent-blue);
+}
+
+.toast-info .toast-icon {
+  color: var(--ai-accent-blue);
+  font-size: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== 批量处理进度遮罩 ==================== */
+
+.ai-batch-progress-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-batch-progress-modal {
+  background: var(--ai-bg-primary);
+  border-radius: 16px;
+  box-shadow: var(--ai-shadow-modal);
+  width: 400px;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--ai-border-primary);
+}
+
+.ai-batch-progress-modal .batch-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.ai-batch-progress-modal .batch-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ai-text-primary);
+  margin-bottom: 8px;
+}
+
+.ai-batch-progress-modal .batch-desc {
+  font-size: 14px;
+  color: var(--ai-text-secondary);
+  margin-bottom: 16px;
+}
+
+/* 进度条 */
+.ai-progress-bar-container {
+  background: var(--ai-bg-progress-track);
+  border-radius: 8px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.ai-progress-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--ai-gradient-progress);
+  transition: width 0.3s ease;
+}
+
+.ai-batch-progress-text {
+  font-size: 14px;
+  color: var(--ai-text-primary);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.ai-batch-current-text {
+  font-size: 12px;
+  color: var(--ai-text-muted);
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 20px;
+}
+
+.ai-batch-cancel-btn {
+  padding: 10px 32px;
+  border: 1px solid var(--ai-accent-red-border);
+  border-radius: 8px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-accent-red-border);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-batch-cancel-btn:hover {
+  background: var(--ai-bg-hover);
+}
+
+/* ==================== 批量处理结果模态框 ==================== */
+
+.ai-batch-results-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ai-batch-results-overlay.show {
+  opacity: 1;
+}
+
+.ai-batch-results-modal {
+  background: var(--ai-bg-primary);
+  border-radius: 16px;
+  box-shadow: var(--ai-shadow-modal);
+  max-width: 900px;
+  width: 95%;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+  border: 1px solid var(--ai-border-primary);
+}
+
+.ai-batch-results-modal.show {
+  transform: scale(1) translateY(0);
+}
+
+.ai-batch-results-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ai-border-divider);
+  background: linear-gradient(
+    135deg,
+    var(--ai-header-gradient-start) 0%,
+    var(--ai-header-gradient-end) 100%
+  );
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.ai-batch-results-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-batch-results-header .header-icon {
+  font-size: 24px;
+}
+
+.ai-batch-results-header .header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ai-batch-results-header .header-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.ai-batch-results-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.ai-batch-results-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 结果列表容器 */
+.ai-batch-results-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* 结果卡片 */
+.ai-batch-result-card {
+  background: var(--ai-bg-card);
+  border: 1px solid var(--ai-border-secondary);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.ai-batch-result-card.fail {
+  background: var(--ai-bg-error-light);
+  border-color: var(--ai-border-error);
+}
+
+/* 卡片头部 */
+.ai-result-card-header {
+  padding: 12px 16px;
+  background: var(--ai-bg-card-alt);
+  border-bottom: 1px solid var(--ai-border-divider);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-batch-result-card.fail .ai-result-card-header {
+  background: var(--ai-bg-error-header);
+  border-bottom-color: var(--ai-border-error-strong);
+}
+
+.ai-result-card-header .card-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-result-card-header .status-icon {
+  font-size: 16px;
+}
+
+.ai-result-card-header .card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ai-text-primary);
+}
+
+.ai-result-card-header .card-status-text {
+  font-size: 12px;
+  color: var(--ai-accent-success);
+}
+
+.ai-batch-result-card.fail .card-status-text {
+  color: var(--ai-accent-error);
+}
+
+/* 卡片内容 */
+.ai-result-card-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+/* 卡片底部操作 */
+.ai-result-card-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--ai-border-divider);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ai-result-copy-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 6px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-result-copy-btn:hover {
+  background: var(--ai-bg-hover);
+}
+
+/* 结果模态框底部 */
+.ai-batch-results-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--ai-border-divider);
+  background: var(--ai-bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ai-batch-results-close-btn {
+  padding: 10px 32px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 8px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-batch-results-close-btn:hover {
+  background: var(--ai-bg-hover);
+}
+
+/* ==================== 自定义提示词模态框 ==================== */
+
+.ai-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ai-prompt-overlay.show {
+  opacity: 1;
+}
+
+.ai-prompt-modal {
+  background: var(--ai-bg-primary);
+  border-radius: 16px;
+  box-shadow: var(--ai-shadow-modal);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+  border: 1px solid var(--ai-border-primary);
+}
+
+.ai-prompt-modal.show {
+  transform: scale(1) translateY(0);
+}
+
+/* 提示词模态框头部 */
+.ai-prompt-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ai-border-divider);
+  background: linear-gradient(
+    135deg,
+    var(--ai-header-gradient-start) 0%,
+    var(--ai-header-gradient-end) 100%
+  );
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-prompt-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-prompt-header .header-icon {
+  font-size: 24px;
+}
+
+.ai-prompt-header .header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ai-prompt-header .header-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.ai-prompt-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.ai-prompt-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 快捷提示词区域 */
+.ai-prompt-quick-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--ai-border-divider);
+}
+
+.ai-prompt-quick-title {
+  font-size: 12px;
+  color: var(--ai-text-secondary);
+  margin-bottom: 8px;
+}
+
+.ai-prompt-quick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ai-prompt-quick-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 6px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-prompt-quick-btn:hover {
+  background: var(--ai-bg-hover);
+}
+
+/* 输入区域 */
+.ai-prompt-input-section {
+  padding: 16px;
+  position: relative;
+}
+
+.ai-prompt-label {
+  font-size: 14px;
+  color: var(--ai-text-primary);
+  margin-bottom: 8px;
+}
+
+/* 文本输入框 */
+.ai-prompt-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 8px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  font-size: 14px;
+  resize: vertical;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.ai-prompt-textarea:focus {
+  outline: none;
+  border-color: var(--ai-accent-blue);
+}
+
+.ai-prompt-textarea::placeholder {
+  color: var(--ai-text-tertiary);
+}
+
+/* 选中文本预览 */
+.ai-prompt-preview-label {
+  font-size: 12px;
+  color: var(--ai-text-muted);
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.ai-prompt-preview-text {
+  padding: 12px;
+  background: var(--ai-bg-selected-text);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ai-text-secondary);
+  max-height: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.6;
+}
+
+/* 斜杠命令下拉 */
+.ai-slash-dropdown {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 100%;
+  margin-top: 4px;
+  background: var(--ai-bg-slash-dropdown);
+  border: 1px solid var(--ai-border-slash-dropdown);
+  border-radius: 8px;
+  box-shadow: var(--ai-shadow-dropdown);
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  z-index: 10;
+}
+
+.ai-slash-dropdown.visible {
+  display: block;
+}
+
+.ai-slash-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--ai-border-slash-item);
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.ai-slash-item:last-child {
+  border-bottom: none;
+}
+
+.ai-slash-item:hover,
+.ai-slash-item.active {
+  background: var(--ai-bg-accent-blue);
+}
+
+.ai-slash-item .item-name {
+  font-size: 13px;
+  color: var(--ai-text-primary);
+  font-weight: 500;
+}
+
+.ai-slash-item .item-desc {
+  font-size: 11px;
+  color: var(--ai-text-tertiary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 提示词模态框底部 */
+.ai-prompt-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--ai-border-divider);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.ai-prompt-cancel {
+  padding: 10px 24px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 8px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-prompt-cancel:hover {
+  background: var(--ai-bg-hover);
+}
+
+.ai-prompt-confirm {
+  padding: 10px 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--ai-gradient-button);
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--ai-shadow-button);
+  transition: opacity 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-prompt-confirm:hover {
+  opacity: 0.9;
+}
+
+/* ==================== 批量模式选择模态框 ==================== */
+
+.ai-batch-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ai-batch-modal-overlay.show {
+  opacity: 1;
+}
+
+.ai-batch-modal {
+  background: var(--ai-bg-primary);
+  border-radius: 16px;
+  box-shadow: var(--ai-shadow-modal);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.3s ease;
+  border: 1px solid var(--ai-border-primary);
+}
+
+.ai-batch-modal.show {
+  transform: scale(1) translateY(0);
+}
+
+.ai-batch-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ai-border-divider);
+  background: linear-gradient(
+    135deg,
+    var(--ai-header-gradient-start) 0%,
+    var(--ai-header-gradient-end) 100%
+  );
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-batch-modal-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-batch-modal-header .header-icon {
+  font-size: 24px;
+}
+
+.ai-batch-modal-header .header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ai-batch-modal-header .header-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.ai-batch-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.ai-batch-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 模式选择网格 */
+.ai-batch-modes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.ai-batch-modes-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border: 1px solid var(--ai-border-secondary);
+  border-radius: 8px;
+  background: var(--ai-bg-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-batch-modes-grid button:hover {
+  background: var(--ai-bg-hover);
+  transform: translateY(-1px);
+}
+
+.ai-batch-modes-grid button:active {
+  transform: translateY(0);
+}
+
+.ai-batch-modes-grid button .mode-icon {
+  font-size: 20px;
+}
+
+.ai-batch-modes-grid button .mode-name {
+  font-size: 12px;
+  color: var(--ai-text-secondary);
+}
+
+.ai-batch-modes-grid button .custom-badge {
+  font-size: 8px;
+  color: var(--ai-text-custom-badge);
+}
+
+/* 批量模态框底部 */
+.ai-batch-modal-footer {
+  padding: 12px 24px;
+  border-top: 1px solid var(--ai-border-divider);
+  text-align: center;
+}
+
+.ai-batch-cancel {
+  padding: 10px 32px;
+  border: 1px solid var(--ai-border-input);
+  border-radius: 8px;
+  background: var(--ai-bg-primary);
+  color: var(--ai-text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+  font-family: inherit;
+}
+
+.ai-batch-cancel:hover {
+  background: var(--ai-bg-hover);
+}
+
+/* ==================== 进度条动画 ==================== */
+
+@keyframes ai-progress-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.ai-progress-bar.animating {
+  background: linear-gradient(
+    90deg,
+    var(--ai-progress-gradient-start) 25%,
+    var(--ai-progress-gradient-end) 50%,
+    var(--ai-progress-gradient-start) 75%
+  );
+  background-size: 200% 100%;
+  animation: ai-progress-shimmer 2s infinite;
+}

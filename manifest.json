@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "AI Writing Assistant",
+  "version": "1.0.0",
+  "description": "AI-powered writing assistant for various writing modes",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus"
+  ],
+  "commands": {
+    "trigger-menu": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+W",
+        "mac": "Command+Shift+W"
+      },
+      "description": "唤起 AI 写作助手浮动菜单"
+    }
+  },
+  "host_permissions": [
+    "https://api.openai.com/v1/chat/completions",
+    "https://api.anthropic.com/v1/messages",
+    "https://api.deepseek.com/v1/chat/completions",
+    "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
+    "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

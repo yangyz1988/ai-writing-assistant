@@ -3,7 +3,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { buildConnectionTestRequest } from './connection-test';
 import { registerListenerOnce } from './listener-registry';
 import { PROVIDER_DEFAULTS, isLegacyModel } from './provider-config';
-import { replaceSelectionContext, SelectionContext } from './selection-replacement';
+import {
+  captureSelectionContext,
+  getSelectionRect,
+  replaceSelectionContext,
+  SelectionContext,
+} from './selection-replacement';
 import { mapWithConcurrency } from './async-pool';
 
 describe('release hardening', () => {
@@ -89,6 +94,79 @@ describe('release hardening', () => {
     expect(replaceSelectionContext(context, 'Codex')).toBe(true);
     expect(host.textContent).toBe('hello Codex');
     expect(inputListener).toHaveBeenCalledTimes(1);
+  });
+
+  it('captures text-control selections and exposes their bounds', () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'hello world';
+    textarea.setSelectionRange(6, 11);
+    const rect = { x: 1 } as DOMRect;
+    vi.spyOn(textarea, 'getBoundingClientRect').mockReturnValue(rect);
+
+    const context = captureSelectionContext(textarea);
+    expect(context).toMatchObject({ kind: 'text-control', text: 'world', start: 6, end: 11 });
+    expect(context && getSelectionRect(context)).toBe(rect);
+  });
+
+  it('rejects empty and unsupported text-control selections', () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = '   ';
+    textarea.setSelectionRange(0, 3);
+    expect(captureSelectionContext(textarea)).toBeNull();
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    expect(captureSelectionContext(input)).toBeNull();
+    expect(captureSelectionContext(null)).toBeNull();
+  });
+
+  it('captures a DOM Range inside a contenteditable host', () => {
+    document.body.innerHTML = '<div contenteditable="true">hello world</div>';
+    const host = document.body.firstElementChild as HTMLElement;
+    const textNode = host.firstChild as Text;
+    const range = document.createRange();
+    range.setStart(textNode, 6);
+    range.setEnd(textNode, 11);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    const context = captureSelectionContext(host);
+    expect(context).toMatchObject({ kind: 'range', text: 'world', editableHost: host });
+  });
+
+  it('returns range bounds and supports replacement without an editable host', () => {
+    const rect = { y: 2 } as DOMRect;
+    const range = {
+      getBoundingClientRect: vi.fn().mockReturnValue(rect),
+      deleteContents: vi.fn(),
+      insertNode: vi.fn(),
+    } as unknown as Range;
+    const context: SelectionContext = { kind: 'range', text: 'x', range, editableHost: null };
+
+    expect(getSelectionRect(context)).toBe(rect);
+    expect(replaceSelectionContext(context, 'y')).toBe(true);
+    expect(range.deleteContents).toHaveBeenCalledTimes(1);
+    expect(range.insertNode).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back to a standard input event when InputEvent is unavailable', () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'hello world';
+    const listener = vi.fn();
+    textarea.addEventListener('input', listener);
+    vi.stubGlobal('InputEvent', undefined);
+
+    expect(replaceSelectionContext({
+      kind: 'text-control',
+      text: 'world',
+      element: textarea,
+      start: 6,
+      end: 11,
+    }, 'Codex')).toBe(true);
+    expect(textarea.value).toBe('hello Codex');
+    expect(listener).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
   });
 
   it('limits batch concurrency while preserving result order', async () => {

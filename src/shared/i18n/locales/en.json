@@ -8,7 +8,8 @@
     "modes": "Modes",
     "customModes": "Custom",
     "history": "History",
-    "promptTemplates": "Templates"
+    "promptTemplates": "Templates",
+    "account": "Account"
   },
   "config": {
     "title": "API Configuration",

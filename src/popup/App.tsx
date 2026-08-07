@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ApiConfig, CustomWritingMode, HistoryRecord, PromptTemplate } from '../shared/types';
-import { DEFAULT_API_CONFIG, WRITING_MODES, DOMESTIC_PROVIDERS, AVAILABLE_ICONS, generateModeId } from '../shared/constants';
+import { DEFAULT_API_CONFIG, WRITING_MODES, DOMESTIC_PROVIDERS, AVAILABLE_ICONS, generateModeId, MEMBERSHIP_API_BASE_URL } from '../shared/constants';
 import { getMessages, setLanguage, getLanguage, subscribeLanguageChange, initLanguage } from '../shared/i18n';
 import { Language, LocaleMessages } from '../shared/i18n/types';
 import { PromptTemplateCatalog as PromptTemplateCatalogData, resolveMembershipPlan } from '../shared/entitlements';
 import { PromptTemplateCatalog } from './PromptTemplateCatalog';
 import { buildConnectionTestRequest } from '../shared/connection-test';
 import { PROVIDER_DEFAULTS } from '../shared/provider-config';
+import { MembershipClient } from '../shared/membership-client';
+import { AccountPanel } from './AccountPanel';
 import './styles.css';
 
-type TabType = 'config' | 'modes' | 'customModes' | 'history' | 'promptTemplates';
+type TabType = 'config' | 'modes' | 'customModes' | 'history' | 'promptTemplates' | 'account';
 
 const fetchPromptTemplateCatalog = async (): Promise<PromptTemplateCatalogData | null> => {
   const response = await chrome.runtime.sendMessage({ type: 'GET_PROMPT_TEMPLATES' });
@@ -25,6 +27,10 @@ const fetchPromptTemplateCatalog = async (): Promise<PromptTemplateCatalogData |
 };
 
 const App: React.FC = () => {
+  const membershipClient = useMemo(
+    () => MEMBERSHIP_API_BASE_URL ? new MembershipClient({ baseUrl: MEMBERSHIP_API_BASE_URL }) : null,
+    [],
+  );
   const [activeTab, setActiveTab] = useState<TabType>('config');
   const [apiConfig, setApiConfig] = useState<ApiConfig>(DEFAULT_API_CONFIG);
   const [selectedMode, setSelectedMode] = useState<string>('official');
@@ -424,6 +430,12 @@ const App: React.FC = () => {
         >
           {messages.tabs.promptTemplates}
         </button>
+        <button
+          className={`tab-btn ${activeTab === 'account' ? 'active' : ''}`}
+          onClick={() => setActiveTab('account')}
+        >
+          {messages.tabs.account}
+        </button>
       </div>
 
       {/* API 配置标签页 */}
@@ -770,13 +782,23 @@ const App: React.FC = () => {
         </section>
       )}
 
-      <button
-        className="save-button"
-        onClick={handleSave}
-        disabled={isSaving}
-      >
-        {isSaving ? messages.config.saving : messages.config.saveSettings}
-      </button>
+      {activeTab === 'account' && (
+        <AccountPanel
+          client={membershipClient}
+          language={currentLang}
+          onPlanChange={setMembershipPlan}
+        />
+      )}
+
+      {activeTab !== 'account' && (
+        <button
+          className="save-button"
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? messages.config.saving : messages.config.saveSettings}
+        </button>
+      )}
 
       <footer className="popup-footer">
         <p className="tips">{messages.app.tips}</p>

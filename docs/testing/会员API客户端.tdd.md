@@ -3,6 +3,7 @@
 ## 用户旅程
 
 - 作为登录用户，我可以安全同步自己的会员状态。
+- 作为访客，我可以通过邮箱验证码换取仅用于当前浏览器会话的短期访问令牌。
 - 作为免费用户，我可以请求一个由服务端创建的 Pro 收银台会话。
 - 作为系统，异常响应、非 HTTPS 地址、缺失令牌和上游错误必须安全失败。
 
@@ -11,7 +12,7 @@
 | 阶段 | 命令 | 结果 |
 | --- | --- | --- |
 | RED | `npm test -- --run src/shared/membership-client.test.ts` | 失败：`membership-client` 模块不存在 |
-| GREEN | `npm test -- --run src/shared/membership-client.test.ts` | 通过：8 个测试 |
+| GREEN | `npm test -- --run src/shared/membership-client.test.ts` | 通过：11 个测试 |
 | RED | `npm test -- --run src/shared/entitlements.test.ts` | 失败：Pro 提示词仍存在于扩展包 |
 | GREEN | `npm test -- --run src/shared/entitlements.test.ts src/shared/membership-client.test.ts` | 通过：16 个测试 |
 
@@ -25,6 +26,8 @@
 | 4 | 收银台地址仅接受 HTTPS | `membership-client.test.ts` | PASS |
 | 5 | 服务端错误转换为稳定错误码且不暴露正文 | `membership-client.test.ts` | PASS |
 | 6 | 扩展包不包含 24 个 Pro 模板的提示词正文 | `entitlements.test.ts` | PASS |
+| 7 | 邮箱先规范化，验证码严格为 6 位数字，无效输入不会发出请求 | `membership-client.test.ts` | PASS |
+| 8 | 登录接口只接受结构完整且带到期时间的短期令牌 | `membership-client.test.ts` | PASS |
 
 ## 已知范围
 

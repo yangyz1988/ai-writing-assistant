@@ -8,7 +8,8 @@
     "modes": "写作模式",
     "customModes": "自定义",
     "history": "历史",
-    "promptTemplates": "提示词模板"
+    "promptTemplates": "提示词模板",
+    "account": "账户"
   },
   "config": {
     "title": "API 配置",

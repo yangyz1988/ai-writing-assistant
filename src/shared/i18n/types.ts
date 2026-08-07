@@ -11,6 +11,7 @@ export interface LocaleMessages {
     customModes: string;
     history: string;
     promptTemplates: string;
+    account: string;
   };
   config: {
     title: string;

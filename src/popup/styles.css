@@ -150,7 +150,8 @@ body {
 
 .config-section,
 .modes-section,
-.custom-modes-section {
+.custom-modes-section,
+.account-section {
   margin-bottom: 16px;
 }
 
@@ -160,6 +161,89 @@ body {
   font-size: 14px;
   color: #666;
   margin-bottom: 12px;
+}
+
+.account-section h2 {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.account-unavailable,
+.account-card,
+.account-form {
+  padding: 14px;
+  border: 1px solid #e3e7ee;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.account-unavailable {
+  color: #687386;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8ebf0;
+  color: #687386;
+  font-size: 11px;
+}
+
+.account-row strong {
+  color: #273142;
+  font-size: 11px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.account-actions button {
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.account-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-button {
+  border: 1px solid #4a90d9;
+  color: #fff;
+  background: #4a90d9;
+}
+
+.secondary-button {
+  border: 1px solid #cfd6df;
+  color: #52606d;
+  background: #fff;
+}
+
+.danger-button {
+  border: 1px solid #ffcccc;
+  color: #d9363e;
+  background: #fff;
+}
+
+.account-notice {
+  margin-top: 10px;
+  color: #687386;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .form-group {

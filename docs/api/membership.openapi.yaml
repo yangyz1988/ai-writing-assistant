@@ -9,6 +9,90 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /api/v1/auth/email-codes:
+    post:
+      security: []
+      operationId: requestEmailCode
+      summary: Send a single-use login code to an email address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+      responses:
+        '202':
+          description: The request was accepted. Return the same response for registered and unregistered addresses.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [retry_after_seconds]
+                    properties:
+                      retry_after_seconds:
+                        type: integer
+                        minimum: 0
+        '422':
+          description: Invalid email address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /api/v1/auth/email-sessions:
+    post:
+      security: []
+      operationId: verifyEmailCode
+      summary: Exchange a single-use email code for a short-lived access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                code:
+                  type: string
+                  pattern: '^\\d{6}$'
+      responses:
+        '201':
+          description: Authenticated session created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AuthSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '429':
+          $ref: '#/components/responses/RateLimited'
   /api/v1/membership:
     get:
       operationId: getMembership
@@ -87,6 +171,17 @@ components:
       scheme: bearer
       bearerFormat: short-lived access token
   schemas:
+    AuthSession:
+      type: object
+      additionalProperties: false
+      required: [access_token, expires_at]
+      properties:
+        access_token:
+          type: string
+          description: Short-lived bearer token. Extension clients must keep it in session storage only.
+        expires_at:
+          type: string
+          format: date-time
     Membership:
       type: object
       additionalProperties: false

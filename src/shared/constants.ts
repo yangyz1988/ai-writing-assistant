@@ -172,6 +172,12 @@ export const TOKEN_PRICES: Record<string, { input: number; output: number }> = {
   'claude-3-haiku-20240307': { input: 0.00025, output: 0.00125 },
 };
 
+// Set this to the deployed membership service origin together with a matching
+// manifest host permission. Empty means the commercial account flow is disabled.
+export const MEMBERSHIP_API_BASE_URL = typeof __MEMBERSHIP_API_BASE_URL__ === 'string'
+  ? __MEMBERSHIP_API_BASE_URL__
+  : '';
+
 // 获取价格
 export function getTokenPrice(provider: string, model: string): { input: number; output: number } {
   // 先尝试精确匹配 model

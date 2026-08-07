@@ -20,6 +20,15 @@ export interface CreateCheckoutSessionInput {
   returnUrl: string;
 }
 
+export interface RequestEmailCodeResult {
+  retryAfterSeconds: number;
+}
+
+export interface AuthSession {
+  accessToken: string;
+  expiresAt: string;
+}
+
 interface MembershipClientOptions {
   baseUrl: string;
   fetchImpl?: typeof fetch;
@@ -42,6 +51,8 @@ const SUBSCRIPTION_STATUSES = new Set<SubscriptionStatus>([
 ]);
 const BILLING_CYCLES = new Set<BillingCycle>(['monthly', 'annual']);
 const DEFAULT_TIMEOUT_MS = 10_000;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const VERIFICATION_CODE_PATTERN = /^\d{6}$/;
 
 export class MembershipApiError extends Error {
   readonly code: string;
@@ -80,6 +91,22 @@ function requireAccessToken(value: string): string {
     throw new MembershipApiError('authentication_required', 'Sign in is required', 401);
   }
   return token;
+}
+
+function normalizeEmail(value: string): string {
+  const email = value.trim().toLowerCase();
+  if (email.length > 254 || !EMAIL_PATTERN.test(email)) {
+    throw new MembershipApiError('validation_error', 'Email address is invalid', 422);
+  }
+  return email;
+}
+
+function requireVerificationCode(value: string): string {
+  const code = value.trim();
+  if (!VERIFICATION_CODE_PATTERN.test(code)) {
+    throw new MembershipApiError('validation_error', 'Verification code must contain 6 digits', 422);
+  }
+  return code;
 }
 
 function isIsoDateOrNull(value: unknown): value is string | null {
@@ -132,6 +159,33 @@ function parseCheckoutSession(value: unknown): CheckoutSession {
   return { checkoutUrl: checkoutUrl.toString(), expiresAt: data.expires_at };
 }
 
+function parseEmailCodeResult(value: unknown): RequestEmailCodeResult {
+  if (!value || typeof value !== 'object') {
+    throw new MembershipApiError('invalid_response', 'Email code response is invalid');
+  }
+  const retryAfterSeconds = (value as Record<string, unknown>).retry_after_seconds;
+  if (!Number.isInteger(retryAfterSeconds) || (retryAfterSeconds as number) < 0) {
+    throw new MembershipApiError('invalid_response', 'Email code response is invalid');
+  }
+  return { retryAfterSeconds: retryAfterSeconds as number };
+}
+
+function parseAuthSession(value: unknown): AuthSession {
+  if (!value || typeof value !== 'object') {
+    throw new MembershipApiError('invalid_response', 'Authentication response is invalid');
+  }
+  const data = value as Record<string, unknown>;
+  if (
+    typeof data.access_token !== 'string'
+    || data.access_token.trim().length < 16
+    || typeof data.expires_at !== 'string'
+    || !Number.isFinite(Date.parse(data.expires_at))
+  ) {
+    throw new MembershipApiError('invalid_response', 'Authentication response is invalid');
+  }
+  return { accessToken: data.access_token, expiresAt: data.expires_at };
+}
+
 function validateCheckoutInput(input: CreateCheckoutSessionInput): void {
   if (input.plan !== 'pro' || !BILLING_CYCLES.has(input.billingCycle)) {
     throw new MembershipApiError('validation_error', 'Checkout selection is invalid', 422);
@@ -159,6 +213,25 @@ export class MembershipClient {
     this.timeoutMs = timeoutMs;
   }
 
+  async requestEmailCode(email: string): Promise<RequestEmailCodeResult> {
+    const body = await this.request('/api/v1/auth/email-codes', null, {
+      method: 'POST',
+      body: JSON.stringify({ email: normalizeEmail(email) }),
+    });
+    return parseEmailCodeResult(body.data);
+  }
+
+  async verifyEmailCode(email: string, code: string): Promise<AuthSession> {
+    const body = await this.request('/api/v1/auth/email-sessions', null, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: normalizeEmail(email),
+        code: requireVerificationCode(code),
+      }),
+    });
+    return parseAuthSession(body.data);
+  }
+
   async getMembership(accessToken: string): Promise<MembershipStatus> {
     const body = await this.request('/api/v1/membership', requireAccessToken(accessToken), { method: 'GET' });
     return parseMembershipStatus(body.data);
@@ -183,7 +256,7 @@ export class MembershipClient {
 
   private async request(
     path: string,
-    accessToken: string,
+    accessToken: string | null,
     init: Pick<RequestInit, 'method' | 'body'>,
   ): Promise<{ data: unknown }> {
     const controller = new AbortController();
@@ -195,7 +268,7 @@ export class MembershipClient {
         signal: controller.signal,
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
           ...(init.body ? { 'Content-Type': 'application/json' } : {}),
         },
       });

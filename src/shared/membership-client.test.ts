@@ -20,6 +20,48 @@ describe('MembershipClient', () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it('请求邮箱验证码时规范化邮箱且不发送授权头', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      data: { retry_after_seconds: 60 },
+    }), { status: 202, headers: { 'Content-Type': 'application/json' } }));
+    const client = new MembershipClient({ baseUrl: 'https://api.example.com', fetchImpl });
+
+    await expect(client.requestEmailCode(' User@Example.COM ')).resolves.toEqual({ retryAfterSeconds: 60 });
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://api.example.com/api/v1/auth/email-codes',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ email: 'user@example.com' }),
+        headers: expect.not.objectContaining({ Authorization: expect.anything() }),
+      }),
+    );
+  });
+
+  it('验证码输入无效时不发起登录请求', async () => {
+    const fetchImpl = vi.fn();
+    const client = new MembershipClient({ baseUrl: 'https://api.example.com', fetchImpl });
+
+    await expect(client.verifyEmailCode('user@example.com', '12ab')).rejects.toMatchObject({
+      code: 'validation_error',
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('用邮箱验证码换取短期访问令牌', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      data: {
+        access_token: 'short-lived-access-token',
+        expires_at: '2026-08-02T14:00:00.000Z',
+      },
+    }), { status: 201, headers: { 'Content-Type': 'application/json' } }));
+    const client = new MembershipClient({ baseUrl: 'https://api.example.com', fetchImpl });
+
+    await expect(client.verifyEmailCode('user@example.com', '123456')).resolves.toEqual({
+      accessToken: 'short-lived-access-token',
+      expiresAt: '2026-08-02T14:00:00.000Z',
+    });
+  });
+
   it('使用 Bearer 令牌获取并解析会员状态', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       data: {

@@ -26,6 +26,8 @@ A Chrome extension that provides AI-powered writing assistance for various writi
 
 ### Development
 
+Requires Node.js 24 or later.
+
 1. Install dependencies:
    ```bash
    npm install

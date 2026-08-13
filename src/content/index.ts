@@ -196,9 +196,13 @@ class AIWritingAssistant {
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
     
     // 监听来自 background 的快捷键命令
-    chrome.runtime.onMessage.addListener((message) => {
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message.type === 'TRIGGER_MENU') {
         this.triggerMenuByShortcut();
+      }
+      if (message.type === 'GET_SELECTION') {
+        const context = captureSelectionContext(document.activeElement) || this.currentSelection;
+        sendResponse({ success: Boolean(context?.text), text: context?.text || '', title: document.title, url: location.href });
       }
     });
   }

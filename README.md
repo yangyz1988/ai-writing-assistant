@@ -4,6 +4,7 @@ A Chrome extension that provides AI-powered writing assistance for various writi
 
 ## Features
 
+- **Local Achievement Ledger**: Capture work facts, confirm evidence, generate a deterministic weekly report, and export/delete local records
 - **Text Selection Integration**: Select text on any webpage to trigger AI writing assistance
 - **Multiple Writing Modes**: 
   - Official Document (公文)
@@ -59,6 +60,19 @@ npm run dev
 
 ## Usage
 
+### Achievement Ledger
+
+1. Open the extension; the achievement ledger is the default page
+2. Add or edit a work record with its date, project, category, impact, evidence, and your role
+3. Confirm facts only after checking them
+4. Optionally verify the captured page title and URL as a traceable source
+5. Generate a weekly report with numbered fact references; unconfirmed records are always excluded
+6. Export the local ledger as JSON or delete individual records
+
+Next actions from earlier records become commitments for the following week. A commitment cannot be marked completed unless it is linked to at least one confirmed achievement from the target week; delayed and canceled commitments require an explanation.
+
+This first version stores ledger data only in `chrome.storage.local`. It does not sync to a server and does not use AI to invent or complete missing facts.
+
 ### Method 1: Text Selection
 1. Select text on any webpage (minimum 3 characters)
 2. A floating menu will appear with writing mode options
@@ -91,7 +105,15 @@ npm run lint:fix
 
 # Production build
 npm run build
+
+# Full quality gate
+npm run verify
+
+# Build and run the Edge extension E2E suite
+npm run test:e2e
 ```
+
+After this repository is connected to GitHub, pushes and pull requests run the static quality gate and the four Edge extension journeys on a Windows CI runner. Failed E2E runs retain Playwright reports, traces, and screenshots for 14 days.
 
 ## Project Structure
 

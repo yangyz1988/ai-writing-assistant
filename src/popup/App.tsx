@@ -9,9 +9,10 @@ import { buildConnectionTestRequest } from '../shared/connection-test';
 import { PROVIDER_DEFAULTS } from '../shared/provider-config';
 import { MembershipClient } from '../shared/membership-client';
 import { AccountPanel } from './AccountPanel';
+import { AchievementLedger } from './AchievementLedger';
 import './styles.css';
 
-type TabType = 'config' | 'modes' | 'customModes' | 'history' | 'promptTemplates' | 'account';
+type TabType = 'ledger' | 'config' | 'modes' | 'customModes' | 'history' | 'promptTemplates' | 'account';
 
 const fetchPromptTemplateCatalog = async (): Promise<PromptTemplateCatalogData | null> => {
   const response = await chrome.runtime.sendMessage({ type: 'GET_PROMPT_TEMPLATES' });
@@ -31,7 +32,7 @@ const App: React.FC = () => {
     () => MEMBERSHIP_API_BASE_URL ? new MembershipClient({ baseUrl: MEMBERSHIP_API_BASE_URL }) : null,
     [],
   );
-  const [activeTab, setActiveTab] = useState<TabType>('config');
+  const [activeTab, setActiveTab] = useState<TabType>('ledger');
   const [apiConfig, setApiConfig] = useState<ApiConfig>(DEFAULT_API_CONFIG);
   const [selectedMode, setSelectedMode] = useState<string>('official');
   const [apiKey, setApiKey] = useState<string>('');
@@ -400,6 +401,12 @@ const App: React.FC = () => {
 
       {/* 标签页导航 */}
       <div className="tab-nav">
+        <button
+          className={`tab-btn ${activeTab === 'ledger' ? 'active' : ''}`}
+          onClick={() => setActiveTab('ledger')}
+        >
+          {currentLang === 'zh' ? '成果账本' : 'Ledger'}
+        </button>
         <button 
           className={`tab-btn ${activeTab === 'config' ? 'active' : ''}`}
           onClick={() => setActiveTab('config')}
@@ -437,6 +444,8 @@ const App: React.FC = () => {
           {messages.tabs.account}
         </button>
       </div>
+
+      {activeTab === 'ledger' && <AchievementLedger language={currentLang} />}
 
       {/* API 配置标签页 */}
       {activeTab === 'config' && (
@@ -790,7 +799,7 @@ const App: React.FC = () => {
         />
       )}
 
-      {activeTab !== 'account' && (
+      {activeTab !== 'account' && activeTab !== 'ledger' && (
         <button
           className="save-button"
           onClick={handleSave}
